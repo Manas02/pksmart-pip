@@ -1,0 +1,16 @@
+Requirements
+conda create -c conda-forge -n my-rdkit-env rdkit 
+conda install -c bokeh bokeh         
+conda install -c conda-forge uvicorn 
+pip install streamlit  
+pip install scikit-learn==1.1.1   
+pip install fastapi 
+pip install mordred 
+
+Backend
+cd 'PK_Model_v8\backend\'
+uvicorn main:app --reload 
+
+Frontend
+cd 'PK_Model_v8\frontend\' 
+streamlit run .\Homepage.py    
