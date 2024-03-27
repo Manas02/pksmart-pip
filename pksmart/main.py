@@ -4,6 +4,7 @@ import sys
 import pickle
 import argparse
 import warnings
+from datetime import datetime
 from argparse import RawTextHelpFormatter
 import numpy as np
 import pandas as pd
@@ -17,6 +18,12 @@ from sklearn.decomposition import PCA
 from loguru import logger
 
 warnings.filterwarnings("ignore", category=UserWarning)
+
+now = datetime.now()
+# Format the date and time components
+formatted_date = now.strftime("%d-%m-%Y")
+formatted_time = now.strftime("%H-%M-%S")
+
 
 banner = """
  ███████████  █████   ████  █████████                                       █████   
@@ -542,7 +549,66 @@ def main():
     parser.add_argument('--smiles', '-s', '-smi', '--smi', '-smiles', help='Input SMILES string to predict properties')
     args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
-    predict_pk_params(smiles=args.smiles)
+    results = predict_pk_params(smiles=args.smiles)
+    smiles_r = results.get("smiles_r")
+    CL_fe = results.get("CL_fe")
+    CL = results.get("CL")
+    Vd_fe = results.get("Vd_fe")
+    Vd = results.get("Vd")
+    MRT_fe = results.get("MRT_fe")
+    MRT = results.get("MRT")
+    thalf_fe = results.get("thalf_fe")
+    thalf = results.get("thalf")
+    fup_fe = results.get("fup_fe")
+    fup = results.get("fup")
+
+    pcv_1 = results.get("pcv_1")
+    pcv_2 = results.get("pcv_2")
+
+    CL_range =[np.round(CL/CL_fe,2), np.round(CL*CL_fe, 2)]
+    Vd_range =[np.round(Vd/Vd_fe,2) , np.round(Vd*Vd_fe, 2)]
+    fup_range =[np.round(fup/fup_fe,2) , np.round(fup*fup_fe, 2)]
+    MRT_range =[np.round(MRT/MRT_fe,2), np.round(MRT*MRT_fe, 2)]
+    thalf_range =[np.round(thalf/thalf_fe,2), np.round(thalf*thalf_fe, 2)]
+
+    preds_dict = {
+
+            'smiles_r':[smiles_r],
+
+            'Clearance_(CL)':[CL],
+            'Clearance_(CL)_units': ["mL/min/kg"],
+            'Clearance_(CL)_folderror': [CL_fe],
+            'Clearance_(CL)_upperbound': np.max(CL_range),
+            'Clearance_(CL)_lowerbound': np.min(CL_range),
+
+            'Volume_of_distribution_(VDss)':[Vd],
+            'Volume_of_distribution_(VDss)_units': ["L/kg"],
+            'Volume_of_distribution_(VDss)_folderror': [Vd_fe],
+            'Volume_of_distribution_(VDss)_upperbound': np.max(Vd_range),
+            'Volume_of_distribution_(VDss)_lowerbound': np.min(Vd_range),
+
+            'Fraction_unbound_in_plasma_(fup)':[fup],
+            'Fraction_unbound_in_plasma_(fup)_units': ["dimensionless"],
+            'Fraction_unbound_in_plasma_(fup)_folderror': [fup_fe],
+            'Fraction_unbound_in_plasma_(fup)_upperbound': np.max(fup_range),
+            'Fraction_unbound_in_plasma_(fup)_lowerbound': np.min(fup_range),
+
+            'Mean_Residence_Time_(MRT)':[MRT],
+            'Mean_Residence_Time_(MRT)_units': ["h"],
+            'Mean_Residence_Time_(MRT)_folderror': [MRT_fe],
+            'Mean_Residence_Time_(MRT)_upperbound': np.max(MRT_range),
+            'Mean_Residence_Time_(MRT)_lowerbound': np.min(MRT_range),
+
+            'Half_life_(thalf)':[thalf],
+            'Half_life_(thalf)_units': ["h"],
+            'Half_life_(thalf)_folderror': [thalf_fe],
+            'Half_life_(thalf)_upperbound': np.max(thalf_range),
+            'Half_life_(thalf)_lowerbound': np.min(thalf_range),
+
+            }
+    filename = f"PKSmart_Result_{formatted_time}_{formatted_date}.csv"
+    pd.DataFrame(preds_dict).to_csv(filename)
+    logger.critical(f'Results are saved at {filename}')
 
 if __name__ == "__main__":
     main()
