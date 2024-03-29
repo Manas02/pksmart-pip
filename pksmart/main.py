@@ -607,7 +607,7 @@ def main():
 
             }
     filename = f"PKSmart_Result_{formatted_time}_{formatted_date}.csv"
-    pd.DataFrame(preds_dict).to_csv(filename)
+    pd.DataFrame(preds_dict).to_csv(filename, index=False)
     logger.critical(f'Results are saved at {filename}')
 
 if __name__ == "__main__":
