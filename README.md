@@ -2,18 +2,18 @@
 
 ## Install
 
+```sh
+pip install pksmart
+```
+
+### Install from source
+
 1. Clone this repo
 ```sh
 git clone https://github.com/Manas02/pksmart-pip
 ```
 
-2. Create a conda env (Recommended | Optional)
-```sh
-conda create --name pksmart
-conda activate pksmart
-```
-
-3. Pip install the `PKSmart` Package
+2. Pip install the `PKSmart` Package
 ```sh
 pip install .
 ```
@@ -22,9 +22,11 @@ pip install .
 ## Usage 
 
 ### Help
+Simply run `pksmart` or `pksmart -h` or `pksmart --help` to get helper.
 ![](./pksmart_help.png)
 
 ### Running PKSmart as CLI
+Run `pksmart -s` or `pksmart --smi` or `pksmart --smiles` to run inference.
 ![](./pksmart_run.png)
 
 
