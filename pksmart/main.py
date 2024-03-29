@@ -167,17 +167,17 @@ def calculate_similarity_test_vs_train(test, train):
 def predict_individual_animal(data_features, endpoint, animal):
 
     # Read columns needed for rat data
-    file = open(os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/features_mfp_mordred_columns_{animal}_model.txt", "r")
+    file = open(os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/features_mfp_mordred_columns_{animal}_model.txt", "r")
     file_lines = file.read()
     features = file_lines.split("\n")
     features = features[:-1]
 
-    loaded_rf = pickle.load(open(os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/log_{endpoint}_model_FINAL.sav", "rb"))
+    loaded_rf = pickle.load(open(os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/log_{endpoint}_model_FINAL.sav", "rb"))
 
     X = data_features[features]
 
     animalmedian = pd.read_csv(
-        os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/Median_mordred_values_{animal}_for_artificial_animal_data_mfp_mrd_model.csv"
+        os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/Median_mordred_values_{animal}_for_artificial_animal_data_mfp_mrd_model.csv"
     )
 
     for i in X.columns[X.isna().any()].tolist():
@@ -215,7 +215,7 @@ def predict_animal(data):
 
 def determine_TS(test):
 
-    train_data = pd.read_csv(os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/Train_data_log_transformed.csv")
+    train_data = pd.read_csv(os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/Train_data_log_transformed.csv")
 
     n_neighbours = 5
     df_master = pd.DataFrame()
@@ -262,7 +262,7 @@ def determine_TS(test):
 def predict_VDss(data, features):  # log human_VDss_L_kg model
 
     loaded_rf = pickle.load(
-        open(os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/log_human_VDss_L_kg_withanimaldata_artificial_model_FINAL.sav", "rb")
+        open(os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/log_human_VDss_L_kg_withanimaldata_artificial_model_FINAL.sav", "rb")
     )
 
     X = data[features].values
@@ -275,7 +275,7 @@ def predict_CL(data, features):
 
     loaded_rf = pickle.load(
         open(
-            os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/log_human_CL_mL_min_kg_withanimaldata_artificial_model_FINAL.sav", "rb"
+            os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/log_human_CL_mL_min_kg_withanimaldata_artificial_model_FINAL.sav", "rb"
         )
     )
 
@@ -288,7 +288,7 @@ def predict_CL(data, features):
 def predict_fup(data, features):
 
     loaded_rf = pickle.load(
-        open(os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/log_human_fup_withanimaldata_artificial_model_FINAL.sav", "rb")
+        open(os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/log_human_fup_withanimaldata_artificial_model_FINAL.sav", "rb")
     )
 
     X = data[features].values
@@ -300,7 +300,7 @@ def predict_fup(data, features):
 def predict_MRT(data, features):
 
     loaded_rf = pickle.load(
-        open(os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/log_human_mrt_withanimaldata_artificial_model_FINAL.sav", "rb")
+        open(os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/log_human_mrt_withanimaldata_artificial_model_FINAL.sav", "rb")
     )
 
     X = data[features].values
@@ -312,7 +312,7 @@ def predict_MRT(data, features):
 def predict_thalf(data, features):
 
     loaded_rf = pickle.load(
-        open(os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/log_human_thalf_withanimaldata_artificial_model_FINAL.sav", "rb")
+        open(os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/log_human_thalf_withanimaldata_artificial_model_FINAL.sav", "rb")
     )
 
     X = data[features].values
@@ -341,7 +341,7 @@ def predict_pk_params(smiles):
     # folderror = folderror_determiner(test)
 
     # read from file features
-    file = open(os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/features_mfp_mordred_animal_artificial_human_modelcolumns.txt", "r")
+    file = open(os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/features_mfp_mordred_animal_artificial_human_modelcolumns.txt", "r")
     file_lines = file.read()
     features_mfp_mordred_animal_columns = file_lines.split("\n")
     features_mfp_mordred_animal_columns = features_mfp_mordred_animal_columns[:-1]
@@ -373,7 +373,7 @@ def predict_pk_params(smiles):
 
     # If mordred human columns fail then model fails, later versions should use mediaan values for nan columns
     human_mordred_median = pd.read_csv(
-        os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/Median_mordred_values_human_for_artificial_animal_data_mfp_mrd_model.csv"
+        os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/Median_mordred_values_human_for_artificial_animal_data_mfp_mrd_model.csv"
     )
 
     # Check if there are any nan in the features needed for mordred human models:
@@ -439,7 +439,7 @@ def predict_pk_params(smiles):
 
     # based on kernel regressor
     CL_Tc = float(ts_data[ts_data["endpoint"] == "human_CL_mL_min_kg"]["MFP_Tc"])
-    loaded = pickle.load(open(os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/folderror_human_CL_mL_min_kg_generator.sav", "rb"))
+    loaded = pickle.load(open(os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/folderror_human_CL_mL_min_kg_generator.sav", "rb"))
     CL_fe = np.round(float(loaded.predict([[CL_Tc]])), 2)
 
     logger.debug(f'Predicting VDss')
@@ -450,7 +450,7 @@ def predict_pk_params(smiles):
 
     # based on kernel regressor
     Vd_Tc = float(ts_data[ts_data["endpoint"] == "human_VDss_L_kg"]["MFP_Tc"])
-    loaded = pickle.load(open(os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/folderror_human_VDss_L_kg_generator.sav", "rb"))
+    loaded = pickle.load(open(os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/folderror_human_VDss_L_kg_generator.sav", "rb"))
     Vd_fe = np.round(float(loaded.predict([[Vd_Tc]])), 2)
 
     logger.debug(f'Predicting Fraction Unbound in Plasma')
@@ -461,7 +461,7 @@ def predict_pk_params(smiles):
 
     # based on kernel regressor
     fup_Tc = float(ts_data[ts_data["endpoint"] == "human_fup"]["MFP_Tc"])
-    loaded = pickle.load(open(os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/folderror_human_fup_generator.sav", "rb"))
+    loaded = pickle.load(open(os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/folderror_human_fup_generator.sav", "rb"))
     fup_fe = np.round(float(loaded.predict([[fup_Tc]])), 2)
 
     logger.debug(f'Predicting Mean Residance Time')
@@ -472,7 +472,7 @@ def predict_pk_params(smiles):
 
     # based on kernel regressor
     MRT_Tc = float(ts_data[ts_data["endpoint"] == "human_mrt"]["MFP_Tc"])
-    loaded = pickle.load(open(os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/folderror_human_mrt_generator.sav", "rb"))
+    loaded = pickle.load(open(os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/folderror_human_mrt_generator.sav", "rb"))
     MRT_fe = np.round(float(loaded.predict([[MRT_Tc]])), 2)
 
     logger.debug(f'Predicting t1/2')
@@ -483,18 +483,18 @@ def predict_pk_params(smiles):
 
     # based on kernel regressor
     thalf_Tc = float(ts_data[ts_data["endpoint"] == "human_thalf"]["MFP_Tc"])
-    loaded = pickle.load(open(os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/folderror_human_thalf_generator.sav", "rb"))
+    loaded = pickle.load(open(os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/folderror_human_thalf_generator.sav", "rb"))
     thalf_fe = np.round(float(loaded.predict([[thalf_Tc]])), 2)
 
     # Preparations for interactive plot
-    file = open(os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/features_mordred_columns_human.txt", "r")
+    file = open(os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/features_mordred_columns_human.txt", "r")
     file_lines = file.read()
     features_mordred_columns = file_lines.split("\n")
     features_mordred_columns = features_mordred_columns[:-1]
 
     test_features = test_mfp_Mordred[features_mordred_columns]
 
-    train_data_features = pd.read_csv(os.path.dirname(os.path.abspath(__file__)) + f"/../PK_Model_v8/Train_data_features.csv")
+    train_data_features = pd.read_csv(os.path.dirname(os.path.abspath(__file__)) + f"/PK_Model_v8/Train_data_features.csv")
 
     data_features = pd.concat([train_data_features, test_features])
     logger.debug(f'Scaling Data')
