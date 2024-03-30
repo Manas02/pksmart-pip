@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pksmart"
-version = "0.1.2"
+version = "0.1.3"
 description = "PKSmart: An Open-Source Computational Model to Predict in vivo Pharmacokinetics of Small Molecules"
 authors = ["Manas Mahale"]
 readme = "README.md"
@@ -9,7 +9,7 @@ readme = "README.md"
 pksmart = "pksmart.main:main"
 
 [tool.poetry.dependencies]
-python = ">=3.9"
+python = ">=3.9, <3.12"
 loguru = "0.7.0"
 mordred = "1.2.0"
 numpy = "1.23.5"

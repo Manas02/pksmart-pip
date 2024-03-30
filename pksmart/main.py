@@ -546,7 +546,7 @@ def predict_pk_params(smiles):
 
 def main():
     parser = argparse.ArgumentParser(description=banner+'\n\n'+abstract+'\n\n'+cite, formatter_class=RawTextHelpFormatter)
-    parser.add_argument('--smiles', '-s', '-smi', '--smi', '-smiles', help='Input SMILES string to predict properties')
+    parser.add_argument('--smiles', '-s', '-smi', '--smi', '-smiles', type=str, help='Input SMILES string to predict properties')
     args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
     results = predict_pk_params(smiles=args.smiles)
