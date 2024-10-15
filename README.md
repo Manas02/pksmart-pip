@@ -45,7 +45,7 @@ import pksmart
 
 if __name__ == "__main__":
     smiles = "CCCCCO"
-    out = pksmart.predict_pk_params()
+    out = pksmart.predict_pk_params(smiles)
     print(out)
 ```
 
