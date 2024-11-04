@@ -23,7 +23,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 warnings.filterwarnings("ignore", category=UserWarning)
 
 # Define the threshold and the alert message
-threshold = 0.2
+threshold = 0.25
 now = datetime.now()
 
 banner = """
@@ -437,7 +437,12 @@ def predict_pk_params(smiles:str):
         "rat_VDss_L_kg", "rat_CL_mL_min_kg", "rat_fup"
     ]
 
-    logger.debug(f"Animal predictions:\n{tabulate(animal_predictions[['smiles_r'] + animal_columns].round(2).head(), headers='keys', tablefmt='psql', showindex=False)}")
+    display_predictions = animal_predictions.copy()
+    for key in animal_columns:
+        if not key.endswith("_fup"):
+            display_predictions[key] = 10**display_predictions[key]
+
+    logger.debug(f"Animal predictions:\n{tabulate(display_predictions[['smiles_r'] + animal_columns].round(2).head(), headers='keys', tablefmt='psql', showindex=False)}")
 
     # Run predictions for human models
     logger.info("Predicting human pharmacokinetic parameters")
@@ -448,7 +453,7 @@ def predict_pk_params(smiles:str):
 
     human_predictions['smiles_r'] = data_mordred['smiles_r']
 
-    human_predictions['VDss_L_kg'] = predict_VDss(data_mordred, model_features)
+    human_predictions['VDss_L_kg'] = 10**predict_VDss(data_mordred, model_features)
     Vd_Tc = ts_data["human_VDss_L_kg"]
 
     with open(os.path.join(SCRIPT_DIR, "data", "folderror_human_VDss_L_kg_generator.sav"), 'rb') as f:
@@ -456,19 +461,19 @@ def predict_pk_params(smiles:str):
         human_predictions['Vd_fe'] = loaded.predict(Vd_Tc.values.reshape(-1, 1)).round(2)
     human_predictions['Vd_min'] = human_predictions['VDss_L_kg'] / human_predictions['Vd_fe']
     human_predictions['Vd_max'] = human_predictions['VDss_L_kg'] * human_predictions['Vd_fe']
-    alert_message = "Alert: This Molecule May Be Out Of AD for VDss (<0.2 Tc with Training data)"
+    alert_message = f"Alert: This Molecule May Be Out Of AD for VDss (<{threshold} Tc with Training data)"
     human_predictions['comments'] = ts_data['human_VDss_L_kg'].apply(
         lambda x: f"{alert_message}" if x < threshold else ""
     )
 
-    human_predictions['CL_mL_min_kg'] = predict_CL(data_mordred, model_features)
+    human_predictions['CL_mL_min_kg'] = 10**predict_CL(data_mordred, model_features)
     CL_Tc =  ts_data["human_CL_mL_min_kg"]
     with open(os.path.join(SCRIPT_DIR, "data", "folderror_human_CL_mL_min_kg_generator.sav"), 'rb') as f:    
         loaded = pickle.load(f)
         human_predictions["CL_fe"]= loaded.predict(CL_Tc.values.reshape(-1, 1)).round(2)
     human_predictions['CL_min'] = human_predictions['CL_mL_min_kg'] / human_predictions['CL_fe']
     human_predictions['CL_max'] = human_predictions['CL_mL_min_kg'] * human_predictions['CL_fe']
-    alert_message = "Alert: This Molecule May Be Out Of AD for CL (<0.2 Tc with Training data)"
+    alert_message = f"Alert: This Molecule May Be Out Of AD for CL (<{threshold} Tc with Training data)"
     human_predictions['comments'] = human_predictions['comments'] + ts_data['human_CL_mL_min_kg'].apply(
         lambda x: f"\n{alert_message}" if x < threshold else ""
     )
@@ -479,34 +484,34 @@ def predict_pk_params(smiles:str):
         loaded = pickle.load(f)
         human_predictions["fup_fe"]= loaded.predict(fup_Tc.values.reshape(-1, 1)).round(2)
     human_predictions['fup_min'] = human_predictions['fup'] / human_predictions['fup_fe']
-    human_predictions['fup_max'] = human_predictions['fup'] * human_predictions['fup_fe']
-    alert_message = "Alert: This Molecule May Be Out Of AD for fup (<0.2 Tc with Training data)"
+    human_predictions['fup_max'] = human_predictions['fup'] * human_predictions['fup_fe'].clip(upper=1)
+    alert_message = f"Alert: This Molecule May Be Out Of AD for fup (<{threshold} Tc with Training data)"
 
     human_predictions['comments'] = human_predictions['comments'] + ts_data['human_fup'].apply(
         lambda x: f"\n{alert_message}" if x < threshold else ""
     )
 
-    human_predictions['MRT_hr'] = predict_MRT(data_mordred, model_features)
+    human_predictions['MRT_hr'] = 10**predict_MRT(data_mordred, model_features)
     MRT_Tc =  ts_data["human_mrt"]
     with open(os.path.join(SCRIPT_DIR, "data", "folderror_human_mrt_generator.sav"), 'rb') as f:
         loaded = pickle.load(f)
         human_predictions["MRT_fe"]= loaded.predict(MRT_Tc.values.reshape(-1, 1)).round(2)
     human_predictions['MRT_min'] = human_predictions['MRT_hr'] / human_predictions['MRT_fe']
     human_predictions['MRT_max'] = human_predictions['MRT_hr'] * human_predictions['MRT_fe']
-    alert_message = "Alert: This Molecule May Be Out Of AD for MRT (<0.2 Tc with Training data)"
+    alert_message = f"Alert: This Molecule May Be Out Of AD for MRT (<{threshold} Tc with Training data)"
 
     human_predictions['comments'] = human_predictions['comments'] + ts_data['human_mrt'].apply(
         lambda x: f"\n{alert_message}" if x < threshold else ""
     )
 
-    human_predictions['thalf_hr'] = predict_thalf(data_mordred, model_features)
+    human_predictions['thalf_hr'] = 10**predict_thalf(data_mordred, model_features)
     thalf_Tc =  ts_data["human_thalf"]
     with open(os.path.join(SCRIPT_DIR, "data", "folderror_human_thalf_generator.sav"), 'rb') as f:
         loaded = pickle.load(f)
         human_predictions["thalf_fe"]= loaded.predict(thalf_Tc.values.reshape(-1, 1)).round(2)
     human_predictions['thalf_min'] = human_predictions['thalf_hr'] / human_predictions['thalf_fe']
     human_predictions['thalf_max'] = human_predictions['thalf_hr'] * human_predictions['thalf_fe']
-    alert_message = "Alert: This Molecule May Be Out Of AD for thalf (<0.2 Tc with Training data)"
+    alert_message = f"Alert: This Molecule May Be Out Of AD for thalf (<{threshold} Tc with Training data)"
 
     human_predictions['comments'] = human_predictions['comments'] + ts_data['human_thalf'].apply(
         lambda x: f"\n{alert_message}" if x < threshold else ""
@@ -517,7 +522,7 @@ def predict_pk_params(smiles:str):
     # Display the human predictions in a table
     logger.debug(f"Human predictions:\n{tabulate(human_predictions.round(2).head(), headers='keys', tablefmt='psql', showindex=False)}")
 
-    combined_predictions = pd.merge(human_predictions, animal_predictions[animal_columns + ['smiles_r']], on='smiles_r')
+    combined_predictions = pd.merge(human_predictions, display_predictions[animal_columns + ['smiles_r']], on='smiles_r')
 
     column_mapping = {
         "VDss": "Volume_of_distribution_(VDss)(L/kg)",

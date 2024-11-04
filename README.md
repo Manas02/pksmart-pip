@@ -31,11 +31,11 @@ Simply run `pksmart` or `pksmart -h` or `pksmart --help` to get helper.
 ### Running PKSmart as CLI
 Run `pksmart -s` or `pksmart --smi` or `pksmart --smiles` to run inference on a single SMILES string.
 
-![](https://github.com/Manas02/pksmart-pip/raw/main/pksmart_run_file.png?raw=True)
+![](https://github.com/Manas02/pksmart-pip/raw/main/pksmart_run_smiles.png?raw=True)
 
 Alternatively, Run `pksmart -f` or `pksmart --file` to run inference using a file containing newline separated SMILES strings.
 
-![](https://github.com/Manas02/pksmart-pip/raw/main/pksmart_run_smiles.png?raw=True)
+![](https://github.com/Manas02/pksmart-pip/raw/main/pksmart_run_file.png?raw=True)
 
 ### Running PKSmart as Library
 
