@@ -71,13 +71,15 @@ def standardize(smiles):
         # print(uncharged_parent_clean_mol)
 
         protonated_smiles = protonate_smiles(
-            Chem.MolToSmiles(uncharged_parent_clean_mol), min_ph=7.4, max_ph=7.4, pka_precision=0
+            Chem.MolToSmiles(uncharged_parent_clean_mol), ph_min=7.4, ph_max=7.4, precision=0
         )
 
-        # print("protonated_smiles")
+        #print(protonated_smiles)
+        #print("protonated_smiles")
 
         if len(protonated_smiles) > 0:
             protonated_smile = protonated_smiles[0]
+
 
         protonated_mol = Chem.MolFromSmiles(protonated_smile)
         # protonated_mol= AddHs(protonated_mol)
@@ -86,7 +88,7 @@ def standardize(smiles):
         # attempt is made at reionization at this step
         # at 7.4 pH
 
-        te = rdMolStandardize.TautomerEnumerator()  # idem
+        te = rdMolStandardize.TautomerEnumerator()
         taut_uncharged_parent_clean_mol = te.Canonicalize(protonated_mol)
 
         return Chem.MolToSmiles(taut_uncharged_parent_clean_mol)

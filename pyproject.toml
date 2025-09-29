@@ -12,15 +12,15 @@ include = [
 pksmart = "pksmart.main:main"
 
 [tool.poetry.dependencies]
-python = ">=3.9, <3.12"
-loguru = "0.7.0"
+python = ">=3.10, <3.12"
+loguru = "^0.7.2"
 mordred = "1.2.0"
 numpy = "1.23.5"
 pandas = "1.5.2"
-rdkit = "2022.9.2"
+rdkit = "^2023.3.3"
 scikit-learn = "1.2.1"
 tabulate = "^0.9.0"
-dimorphite-dl = "2.0.0"
+dimorphite-dl = "2.0.1"
 
 [build-system]
 requires = ["poetry-core"]
