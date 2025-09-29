@@ -15,7 +15,7 @@ from rdkit.Chem import AllChem
 from rdkit.Chem.MolStandardize import rdMolStandardize
 from rdkit.Chem.rdMolDescriptors import GetMorganFingerprintAsBitVect
 from mordred import Calculator, descriptors
-from dimorphite_dl.dimorphite_dl import DimorphiteDL
+from dimorphite_dl import protonate_smiles
 
 # Get the directory of the script
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -27,14 +27,14 @@ threshold = 0.25
 now = datetime.now()
 
 banner = """
- ███████████  █████   ████  █████████                                       █████   
-░░███░░░░░███░░███   ███░  ███░░░░░███                                     ░░███    
- ░███    ░███ ░███  ███   ░███    ░░░  █████████████    ██████   ████████  ███████  
- ░██████████  ░███████    ░░█████████ ░░███░░███░░███  ░░░░░███ ░░███░░███░░░███░   
- ░███░░░░░░   ░███ ░░███   ███    ░███ ░███ ░███ ░███   ███████  ░███ ░░░   ░███    
+ ███████████  █████   ████  █████████                                       █████
+░░███░░░░░███░░███   ███░  ███░░░░░███                                     ░░███
+ ░███    ░███ ░███  ███   ░███    ░░░  █████████████    ██████   ████████  ███████
+ ░██████████  ░███████    ░░█████████ ░░███░░███░░███  ░░░░░███ ░░███░░███░░░███░
+ ░███░░░░░░   ░███ ░░███   ███    ░███ ░███ ░███ ░███   ███████  ░███ ░░░   ░███
  ░███         ░███ ░░███   ███    ░███ ░███ ░███ ░███  ███░░███  ░███       ░███ ███
- █████        █████ ░░████░░█████████  █████░███ █████░░████████ █████      ░░█████ 
-░░░░░        ░░░░░   ░░░░  ░░░░░░░░░  ░░░░░ ░░░ ░░░░░  ░░░░░░░░ ░░░░░        ░░░░░                                                 
+ █████        █████ ░░████░░█████████  █████░███ █████░░████████ █████      ░░█████
+░░░░░        ░░░░░   ░░░░  ░░░░░░░░░  ░░░░░ ░░░ ░░░░░  ░░░░░░░░ ░░░░░        ░░░░░
                                                                                     """
 
 abstract = "Abstract:\nDrug exposure is a key contributor to the safety and efficacy of drugs. It can be defined using human pharmacokinetic (PK) parameters that affect the blood concentration profile of a drug, such as steady-state volume of distribution (VDss), total body clearance (CL), half-life (t½), fraction unbound in plasma (fu) and mean residence time (MRT). In this work, we used molecular structural fingerprints, physicochemical properties, and predicted animal PK data as features to model the human PK parameters VDss, CL, t½, fu and MRT for 1,283 unique compounds. First, we predicted animal PK parameters [VDss, CL, fu] for rats, dogs, and monkeys for 372 unique compounds using molecular structural fingerprints and physicochemical properties. Second, we used Morgan fingerprints, Mordred descriptors and predicted animal PK parameters in a hyperparameter-optimised Random Forest algorithm to predict human PK parameters. When validated using repeated nested cross-validation, human VDss was best predicted with an R2 of 0.55 and a Geometric Mean Fold Error (GMFE) of 2.09; CL with accuracies of R2=0.31 and GMFE=2.43, fu with R2=0.61 and GMFE=2.81, MRT with R2=0.28 and GMFE=2.49, and t½ with R2=0.31 and GMFE=2.46 for models combining Morgan fingerprints, Mordred descriptors and predicted animal PK parameters. We evaluated models with an external test set comprising 315 compounds for VDss (R2=0.33 and GMFE=2.58) and CL (R2=0.45 and GMFE=1.98). We compared our models with proprietary pharmacokinetic (PK) models from AstraZeneca and found that model predictions were similar with Pearson correlations ranging from 0.77-0.78 for human PK parameters of VDss and fu and 0.46-0.71 for animal (dog and rat) PK parameters of VDss, CL and fu. To the best of our knowledge, this is the first work that publicly releases PK models on par with industry-standard models. Early assessment and integration of predicted PK properties are crucial, such as in DMTA cycles, which is possible with models in this study based on the input of only chemical structures. We developed a webhosted application PKSmart (https://broad.io/PKSmart) which users can access using a web browser with all code also downloadable for local use.\n\n\nFunding\n- Cambridge Centre for Data Driven Discovery and Accelerate Programme for Scientific Discovery under the project title “Theoretical, Scientific, and Philosophical Perspectives on Biological Understanding in the Age of Artificial Intelligence”, made possible by a donation from Schmidt Futures\n- Cambridge Commonwealth, European and International Trust\n- National Institutes of Health (NIH MIRA R35 GM122547 to Anne E Carpenter) \n- Massachusetts Life Sciences Center Bits to Bytes Capital Call program for funding the data analysis (to Shantanu Singh, Broad Institute of MIT and Harvard)\n- OASIS Consortium organised by HESI (OASIS to Shantanu Singh, Broad Institute of MIT and Harvard)\n- Boak Student Support Fund (Clare Hall)\n- Jawaharlal Nehru Memorial Fund\n- Allen, Meek and Read Fund\n- Trinity Henry Barlow (Trinity College)"
@@ -45,7 +45,6 @@ bioRxiv 2024.02.02.578658; doi: https://doi.org/10.1101/2024.02.02.578658\n"""
 
 
 # use pH 7.4 https://git.durrantlab.pitt.edu/jdurrant/dimorphite_dl/
-dimorphite = DimorphiteDL(min_ph=7.4, max_ph=7.4, pka_precision=0)
 
 def standardize(smiles):
     # follows the steps in
@@ -71,8 +70,8 @@ def standardize(smiles):
 
         # print(uncharged_parent_clean_mol)
 
-        protonated_smiles = dimorphite.protonate(
-            Chem.MolToSmiles(uncharged_parent_clean_mol)
+        protonated_smiles = protonate_smiles(
+            Chem.MolToSmiles(uncharged_parent_clean_mol), min_ph=7.4, max_ph=7.4, pka_precision=0
         )
 
         # print("protonated_smiles")
@@ -116,7 +115,7 @@ def calcdesc(data):
 
     # Combine all features into one DataFrame
     result = pd.concat([data, Mordred_table, Morganfingerprint_table], axis=1)
-    
+
     # Remove duplicate columns if any
     result = result.loc[:, ~result.columns.duplicated()]
     return result
@@ -148,10 +147,10 @@ def predict_individual_animal(data, endpoint, animal):
 
     # Scale the features and create a DataFrame with the scaled data
     X_scaled = pd.DataFrame(scaler.transform(X), columns=features)
-    
+
     # Predict the target variable using the loaded model
     y_pred = loaded_rf.predict(X_scaled)
-    
+
     return y_pred
 
 
@@ -171,7 +170,7 @@ def predict_animal(data):
     return data
 
 
-def predict_VDss(data, features):  
+def predict_VDss(data, features):
     # Load the pre-trained random forest model
     with open(os.path.join(SCRIPT_DIR, "data", "log_human_VDss_L_kg_withanimaldata_artificial_model_FINAL.sav"), "rb") as model_file:
         loaded_rf = pickle.load(model_file)
@@ -358,7 +357,7 @@ def avg_kNN_similarity(test_data, train_data_path=os.path.join(SCRIPT_DIR, "data
     - test_data (DataFrame): Test data that will be compared against the training data.
     - train_data_path (str): Path to the CSV file containing the training data (default is '../Train_data_log_transformed.csv').
     - n_neighbours (int): Number of nearest neighbors to consider for similarity (default is 5).
-    
+
     Returns:
     - DataFrame: A DataFrame with the mean similarity scores for each endpoint, rounded to 2 decimal places.
     """
@@ -379,16 +378,16 @@ def avg_kNN_similarity(test_data, train_data_path=os.path.join(SCRIPT_DIR, "data
 
         # Sort by similarity score (MFP_Tc) in descending order
         df_similarity_sorted = df_similarity.sort_values(['query', 'MFP_Tc'], ascending=[True, False]).reset_index(drop=True)
-        
+
         # Select the top n_neighbours for each unique query (compound)
         df_top_neighbours = df_similarity_sorted.groupby('query').head(n_neighbours)
 
         # Group by query and calculate the mean of numeric values
         df_aggregated = df_top_neighbours.groupby('query').mean(numeric_only=True)
-        
+
         # Assign the current endpoint to the results
         df_aggregated["endpoint"] = endpoint
-        
+
         # Append the results to the master DataFrame
         df_master = pd.concat([df_master, df_aggregated])
 
@@ -403,11 +402,11 @@ def check_if_in_training_data(smiles):
     if smiles in df['smiles_r'].values:
         logger.critical(f"SMILES string : \"{smiles}\" was found in Training data with following features:")
         logger.critical(tabulate(df[df['smiles_r'] == smiles][['human_VDss_L_kg','human_CL_mL_min_kg','human_fup','human_mrt','human_thalf']], headers='keys', tablefmt='psql', showindex=False))
-        
+
 
 def predict_pk_params(smiles:str):
     logger.info("Starting PK parameter prediction")
-    
+
     # Create an empty DataFrame to hold the SMILES and predictions
     data = pd.DataFrame([smiles], columns=['smiles_r'])
     logger.debug(f"Input data:\n{tabulate(data, headers='keys', tablefmt='psql', showindex=False)}")
@@ -468,7 +467,7 @@ def predict_pk_params(smiles:str):
 
     human_predictions['CL_mL_min_kg'] = 10**predict_CL(data_mordred, model_features)
     CL_Tc =  ts_data["human_CL_mL_min_kg"]
-    with open(os.path.join(SCRIPT_DIR, "data", "folderror_human_CL_mL_min_kg_generator.sav"), 'rb') as f:    
+    with open(os.path.join(SCRIPT_DIR, "data", "folderror_human_CL_mL_min_kg_generator.sav"), 'rb') as f:
         loaded = pickle.load(f)
         human_predictions["CL_fe"]= loaded.predict(CL_Tc.values.reshape(-1, 1)).round(2)
     human_predictions['CL_min'] = human_predictions['CL_mL_min_kg'] / human_predictions['CL_fe']
@@ -580,7 +579,7 @@ def main():
             df_results = pd.concat([df_results, combined_predictions], ignore_index=True)
         else:
             logger.error(f"Invalid SMILES string: {smiles}")
-    
+
     logger.info("Saving Results ...")
 
     df_results.to_csv(f"pksmart_run_{now.strftime('%H-%M-%S-%d-%m-%Y')}.csv", index=False)
